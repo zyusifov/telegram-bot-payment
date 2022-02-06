@@ -3,6 +3,7 @@ from fastapi import Request, FastAPI
 from fastapi.responses import PlainTextResponse
 from datamodels.telegram_body import TelegramBody
 from datamodels.payment_body import PaymentBody
+import uvicorn
 
 
 app = FastAPI()
@@ -40,3 +41,13 @@ def confirm_payment(obj: PaymentBody):
         text = "Payment was failed"
         telegram.send_message(chat_id, text)
     return {'ok': True}
+
+
+if __name__ == '__main__':
+    uvicorn.run(
+        app='main:app',
+        host='0.0.0.0',
+        port=8001,
+        debug=False,
+        reload=True,
+    )
