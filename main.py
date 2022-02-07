@@ -1,5 +1,5 @@
 from apps import payment, telegram
-from fastapi import Request, FastAPI
+from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 from datamodels.telegram_body import TelegramBody
 from datamodels.payment_body import PaymentBody
@@ -15,7 +15,10 @@ def main(obj: TelegramBody):
     obj = obj.message
     chat_id = obj["chat"]["id"]
     user = obj["from"]["first_name"]
-    payment_link = payment.get_payment_link(obj)
+    try:
+        payment_link = payment.create_invoice(chat_id)
+    except:
+        payment_link = "https://google.az/"
     text = f"Hello, *{user}*\\!"
 
     r = telegram.send_payment_button(chat_id, text, payment_link)
@@ -30,11 +33,12 @@ def success():
 
 # Payment service send requests to this url
 @app.post("/confirm_payment/")
-def confirm_payment(obj: PaymentBody):
+def confirm_payment(response: PaymentBody):
     """status, success, meta, chat_id - all this params must be declared in payment service"""
-    obj = obj.data
-    chat_id = obj["meta"]["chat_id"]
-    if obj['status'] == 'success':
+    obj = response.object
+    chat_id = obj["metadata"]["chat_id"]
+
+    if response.event == "payment.succeeded":
         text = "Payment was successful"
         telegram.send_message(chat_id, text)
     else:
