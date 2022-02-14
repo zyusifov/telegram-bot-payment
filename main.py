@@ -1,8 +1,8 @@
 from apps import payment, telegram
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
-from datamodels.telegram_body import TelegramBody
-from datamodels.payment_body import PaymentBody
+from schemas.telegram_body import TelegramBody
+from schemas.payment_body import PaymentBody
 import uvicorn
 
 
